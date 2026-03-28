@@ -1,0 +1,27 @@
+version: "3.8s:
+  app:
+    build: .
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    restart: always
+
+  mongo:
+    image: mongo
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app
+    restart: always
+
+volumes:
+  mongo-data:
