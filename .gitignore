@@ -2,3 +2,4 @@
 Dockerfile
 bedru.pub
 node_modules
+.env
