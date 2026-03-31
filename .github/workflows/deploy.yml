@@ -31,6 +31,31 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # install docker if not installed
+            if ! command -v docker &> /dev/null
+            then
+              sudo apt update
+              sudo apt install docker.io docker-compose -y
+            fi
+
+            # clone repo if not exists
+            if [ ! -d "app" ]; then
+              git clone https://github.com/Bedru-Mekiyu/first-CI-CD.git app
+            fi
+
+            cd app
+
+            # pull latest code (nginx + compose)
+            git pull origin main
+
+            # create .env dynamically
+            echo "PORT=3000" > .env
+            echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+
+            # pull latest docker image
             docker pull bedru26/node-docker-app
+
+            # restart containers
             docker-compose down
             docker-compose up -d

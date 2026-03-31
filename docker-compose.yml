@@ -1,26 +1,27 @@
-
 services:
   app:
-    build: .
     image: bedru26/node-docker-app
     env_file:
       - .env
     depends_on:
       - mongo
-    restart: always
+    restart: unless-stopped
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
 
   mongo:
     image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: STRONG_PASSWORD
     volumes:
       - mongo-data:/data/db
-    restart: always
+    restart: unless-stopped
     networks:
       - app-network
 
@@ -32,7 +33,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - app
-    restart: always
+    restart: unless-stopped
     networks:
       - app-network
 
